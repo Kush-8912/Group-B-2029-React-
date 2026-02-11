@@ -1,32 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 
 function UserComponent() {
+  const [users, setUsers] = useState([]);
+  const [user ,setUser] = useState()
+  const [id, setId] = useState(1);
 
-  const [users , setUsers] =  useState([])
+  function changeId() {
+    setId(id + 1);
+  }
 
   useEffect(() => {
     console.log("Runs only on the first Render");
     const fetchData = async () => {
-      const data = await fetch(`https://jsonplaceholder.typicode.com/users`);
+      const data = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${id}`
+      );
       const userData = await data.json();
 
-      setUsers(userData)
-
-      console.log(users)
-
-     };
+      setUser(userData);
+    };
 
     fetchData();
-  }, []);
+  }, [id]);
 
-  return <div>
-    <ul>
-   {users.map((user)=>(
-    <li>{user.name}</li>
-   ))}
-   </ul>
+  console.log(users);
 
-  </div>;
+  return (
+    <div>
+      <ul>
+        {/* {users.map((user) => (
+          <li>{user.name}</li>
+        ))} */}
+
+        <button onClick={changeId}>Fetch a Random User by Id</button>
+
+        <h1>{user.name}</h1>
+      </ul>
+    </div>
+  );
 }
 
 export default UserComponent;
