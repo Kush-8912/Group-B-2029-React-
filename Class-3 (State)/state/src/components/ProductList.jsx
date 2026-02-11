@@ -14,7 +14,17 @@ function ProductList() {
     { id: 10, name: "Projector", price: 600 },
   ];
 
-  return <div>ProductList</div>;
+  return (
+    <div>
+      <ul>
+        {Products.map((product) => (
+          <li>
+            Product Name - {product.name} Price - {product.price}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default ProductList;
