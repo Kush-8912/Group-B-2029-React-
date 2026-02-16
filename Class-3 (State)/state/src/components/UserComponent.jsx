@@ -1,8 +1,8 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function UserComponent() {
   const [users, setUsers] = useState([]);
-  const [user ,setUser] = useState()
+  const [user, setUser] = useState();
   const [id, setId] = useState(1);
 
   function changeId() {
