@@ -7,20 +7,30 @@ import Pagination from "./Pagination";
 function Movies() {
   const [movies, setMovies] = useState([]);
 
+  const [pageNo, setPageNo] = useState(1);
+
+  function movePageAhead() {
+    setPageNo(pageNo + 1);
+  }
+
+  function movePageBehind() {
+    setPageNo(pageNo - 1);
+  }
+
 
   console.log(movies);
 
   useEffect(() => {
     async function getData() {
       let response = await axios.get(
-        "https://api.themoviedb.org/3/movie/now_playing?api_key=0b5415eb9bf023d556ef265b425e0e4a&language=en-US&page=3"
+        `https://api.themoviedb.org/3/movie/now_playing?api_key=0b5415eb9bf023d556ef265b425e0e4a&language=en-US&page=${pageNo}`
       );
 
       setMovies(response.data.results);
       console.log(response.data)
     }
     getData();
-  }, []);
+  }, [pageNo]);
 
   return (
     <div>
@@ -30,7 +40,7 @@ function Movies() {
           return <MovieCard title={movieObj.original_title} posterUrl={movieObj.poster_path} />;
         })}
 
-        <Pagination/>
+        <Pagination pageAhead={movePageAhead} pageBehind={movePageBehind}  pageNo={pageNo}/>
       </div>
     </div>
   );
