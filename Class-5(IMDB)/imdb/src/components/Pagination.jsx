@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 
 function Pagination({pageNo , pageAhead , pageBehind}) {
-  
+     
   return (
     <div className="w-full flex h-12.5 bg-gray-500 justify-center p-4 items-center">
       <div onClick={pageBehind} className="m-5">

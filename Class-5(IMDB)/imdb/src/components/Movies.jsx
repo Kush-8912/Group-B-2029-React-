@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import Banner from "./Banner";
 import MovieCard from "./MovieCard.jsx";
 import axios from "axios";
 import Pagination from "./Pagination";
 
-function Movies() {
+function Movies({watchlist}) {
   const [movies, setMovies] = useState([]);
 
   const [pageNo, setPageNo] = useState(1);
+
+
 
   function movePageAhead() {
     setPageNo(pageNo + 1);
@@ -19,6 +21,8 @@ function Movies() {
 
 
   console.log(movies);
+
+ 
 
   useEffect(() => {
     async function getData() {
@@ -37,7 +41,7 @@ function Movies() {
       <Banner />
       <div className="flex flex-wrap justify-around mt-8 gap-8  ">
         {movies.map(function (movieObj) {
-          return <MovieCard title={movieObj.original_title} posterUrl={movieObj.poster_path} />;
+          return <MovieCard movieObject={movieObj} watchlist={watchlist} title={movieObj.original_title} posterUrl={movieObj.poster_path} />;
         })}
 
         <Pagination pageAhead={movePageAhead} pageBehind={movePageBehind}  pageNo={pageNo}/>
