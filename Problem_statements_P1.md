@@ -1,4 +1,3 @@
-Here you go — clean, structured **Markdown version** ready for GitHub / Notion / LMS.
 
 ---
 
