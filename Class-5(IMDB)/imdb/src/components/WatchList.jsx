@@ -1,9 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { genreids } from "../genres";
 
-console.log(genreids)
+console.log(genreids);
 
 function WatchList({ watchList, setWatchList }) {
+  const [genreList, setGenreList] = useState([]);
+  const [currentGenre , setCurrentGenre] = useState('All Genres')
+
+  useEffect(() => {
+    console.log(watchList);
+    let temp = watchList.map((movieObj) => genreids[movieObj.genre_ids[0]]);
+    temp = new Set(temp);
+
+    setGenreList(["All Genres", ...temp]);
+
+    console.log(genreList)
+
+    console.log(temp);
+  }, [watchList]);
+
   useEffect(() => {
     let moviesFromLS = localStorage.getItem("movies");
     if (!moviesFromLS) {
@@ -15,6 +30,17 @@ function WatchList({ watchList, setWatchList }) {
 
   return (
     <div className="m-8 overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      {/* {Genre Filter} */}
+
+      <div className="flex flex-wrap justify-center gap-3 my-4">
+        {genreList.map((genre)=>(
+            <button className="bg-blue-500 text-sm rounded-2xl px-4 py-2 ">{genre}</button>
+        ))}
+      
+      </div>
+
+      {/* {Search Bar} */}
+
       <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead className="bg-gray-50">
           <tr>
@@ -58,12 +84,9 @@ function WatchList({ watchList, setWatchList }) {
                 </div>
               </td>
               <td className="px-6 py-4">
-              
                 <div className="flex items-center gap-1">
                   {movie.popularity}
                 </div>
-              
-
               </td>
               <td className="px-6 py-4">
                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
