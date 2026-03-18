@@ -1,121 +1,130 @@
-## Context API — Detailed Notes (React)
+## Context API — Detailed Notes (Class-10 material, commit-by-commit)
 
-### What problem does Context solve?
-In React, data normally flows **parent → child** via props. This is great until you have to pass the same props through many layers of components that don’t actually use the data (this is called **prop drilling**).
-
-**Context** lets you store a value at a high level and read it in deeply nested components without manually passing props through every level.
-
-Common use-cases:
-- **auth/user** information
-- **theme** (dark/light)
-- **global UI state** (language, layout)
-- **shared app data** like a cart, watchlist, etc.
+These notes follow the exact flow of what was built in `Class-10(Context API)/vite-project` and the related commits:
+- `559218c` — **Context API**
+- `d221524` — **using context at main**
+- `fe3de4c` — **context applied on Movies App**
 
 ---
 
-### Core pieces of Context API
-Context has 3 main parts:
+### Why we needed Context (what was taught in class)
+In component trees like:
+`App → Parent → Child → Child2`
+we often want to share the same data (and functions) with deeply nested children.
 
-#### 1) `createContext()`
-You create a Context object.
+Without Context, we would pass props like:
+`App -> Parent1 -> Child2`
+even if `Parent1` doesn’t need them.
+
+This repeated passing is called **prop drilling**.
+
+**Context API solves this** by letting a parent “provide” values once and letting any child “consume” them directly.
+
+---
+
+## Commit `559218c` — “Context API”
+
+### Step 1: Create an empty Context
+File created/updated: `src/components/ParkContext.jsx`
 
 ```js
 import React from "react";
-export const MovieContext = React.createContext();
+export const ParkContext = React.createContext();
+// Context is Empty
 ```
 
-This creates:
-- a **Provider** component (`MovieContext.Provider`)
-- a Context “channel” that consumers can subscribe to
+Key point taught:
+- `createContext()` creates a context “channel”.
+- At this stage, it is **empty** unless we wrap components with a Provider.
 
-#### 2) Provider
-You wrap the part of your UI tree that needs access.
+### Step 2: Build a component tree where we want data in a deep child
+Files updated: `Parent1.jsx`, `Parent2.jsx`, `Child2.jsx`, etc.
 
-```jsx
-<MovieContext.Provider value={{ watchlist, addToWatchList }}>
-  <AppRoutes />
-</MovieContext.Provider>
-```
+Structure (from the class project):
+- `App.jsx` renders `<Parent1 />` and `<Parent2 />`
+- `Parent1.jsx` renders `<Child1 />` and `<Child2 />`
 
-The `value` prop is what gets shared. It can be:
-- primitive (string/number)
-- object (most common)
-- functions (actions like add/remove)
-
-#### 3) Consumer (`useContext`)
-Any component under that Provider can read the value:
+### Step 3: Read data using `useContext()` (consumer)
+File: `src/components/Child2.jsx`
 
 ```js
 import { useContext } from "react";
-import { MovieContext } from "./MovieContext";
+import { ParkContext } from "./ParkContext";
 
-const { watchlist, addToWatchList } = useContext(MovieContext);
-```
-
----
-
-### When should you use Context?
-Use Context when:
-- Many components need the same data/actions
-- You want **global-ish state** shared across routes/pages
-- You want to avoid prop drilling
-
-Avoid Context when:
-- Data is only needed by 1–2 nearby components
-- State updates extremely frequently (Context causes re-renders of consumers)
-
-Tip: For large apps, you can combine Context with:
-- `useReducer` for predictable updates
-- memoization (`useMemo`, `React.memo`) to reduce re-renders
-
----
-
-### A “best practice” Context pattern
-Create a file like `MovieContext.jsx` and export:
-- the context (`MovieContext`)
-- a provider component (`MovieProvider`) that owns the state
-
-Example:
-
-```jsx
-export const MovieContext = createContext();
-
-export function MovieProvider({ children }) {
-  const [watchlist, setWatchList] = useState([]);
-
-  function addToWatchList(movie) {
-    setWatchList(prev => [...prev, movie]);
-  }
-
-  return (
-    <MovieContext.Provider value={{ watchlist, addToWatchList }}>
-      {children}
-    </MovieContext.Provider>
-  );
+function Child2() {
+  const data = useContext(ParkContext);
+  // data.rollerCoaster
+  // data.ticketForRollerCoaster()
 }
 ```
 
-Then wrap your app once:
+Key point taught:
+- `useContext(ParkContext)` returns whatever value is provided by the nearest `<ParkContext.Provider />` above it.
+
+Important note (very important for class understanding):
+- In this commit, the Context is still “empty” because we haven’t used a Provider yet.
+- If `Child2` tries to access `data.rollerCoaster` before a Provider is added, `data` can be `undefined`.
+
+So the next commit teaches how to **provide** the context value.
+
+---
+
+## Commit `d221524` — “using context at main”
+
+### Step 4: Provide the Context value at the top-level (`main.jsx`)
+File updated: `src/main.jsx`
+
+In class, we created an object called `parkInfo` containing:
+- data fields: `parkName`, `rollerCoaster`, etc.
+- functions: `ticketForRollerCoaster()`, etc.
+
+Then we wrapped the app:
 
 ```jsx
-<MovieProvider>
-  <App />
-</MovieProvider>
+createRoot(document.getElementById("root")).render(
+  <ParkContext.Provider value={parkInfo}>
+    <App />
+  </ParkContext.Provider>
+);
 ```
 
-This keeps `App.jsx` cleaner and makes Context reusable.
+Key point taught:
+- **Provider** makes the context value available to all children under it.
+- Now `Child2` can safely do:
+  - `data.rollerCoaster`
+  - `data.ticketForRollerCoaster()`
+
+Also taught:
+- Context can share **functions** (actions) not only data.
 
 ---
 
-### Important details / interview-style points
-- **Context is not a state manager by itself**: it’s a “transport mechanism” for shared values.
-- If you pass a new object in `value` on every render, consumers re-render. (This is why actions/state are often memoized.)
-- Context is ideal for **app-wide** state; for server state (API caching), tools like React Query are often better.
+## Commit `fe3de4c` — “context applied on Movies App”
+
+### Step 5: Small adjustment in `main.jsx`
+This commit modifies `main.jsx` again (same Provider pattern).
+
+What stays the same (the core lesson):
+- Context is still provided at the top-level with:
+  - `<ParkContext.Provider value={parkInfo}>`
+
+Why this commit matters in class:
+- reinforces that **Provider placement** is what matters most:
+  - wrap high enough so all needed components can consume it
 
 ---
 
-### Mini glossary
-- **Prop drilling**: passing props through intermediate components
-- **Provider**: component that sets the context value
-- **Consumer**: any component reading the context (`useContext`)
+## Summary (exact “class takeaway”)
+- **Create context**: `React.createContext()`
+- **Provide value**: `<MyContext.Provider value={...}>`
+- **Consume value**: `useContext(MyContext)`
+- Use Context when the same data/functions are needed in many components, especially deep children.
+
+---
+
+## Quick glossary (as used in class)
+- **Context**: a shared data channel
+- **Provider**: sets the value for that channel
+- **Consumer**: reads the value (in class we used `useContext`)
+- **Prop drilling**: passing props through layers that don’t need them
 
